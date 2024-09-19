@@ -82,6 +82,7 @@ module.exports = {
         avoidEscape: true,
       },
     ],
+    "@typescript-eslint/no-require-imports": "off",
     "max-len": ["error", 120],
     "no-useless-catch": "off",
     "react-hooks/exhaustive-deps": "off",
