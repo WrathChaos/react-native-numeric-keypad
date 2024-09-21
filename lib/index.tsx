@@ -30,6 +30,9 @@ export interface NumpadProps extends NumpadStyleProps {
   buttonText: string;
   onConfirmPress: (value: number) => void;
   currencyLocale?: string;
+  numpadStyle?: StyleProp<ViewStyle>;
+  inputContainerStyle?: StyleProp<ViewStyle>;
+  inputTextStyle?: StyleProp<TextStyle>;
 }
 
 // **Updated numberFormat function**
@@ -121,7 +124,10 @@ const Numpad: React.FC<NumpadProps> = ({
   buttonTextStyle,
   customBackspaceIcon,
   onConfirmPress,
-  currencyLocale = "de-DE", // Changed default to 'de-DE'
+  numpadStyle,
+  inputContainerStyle,
+  inputTextStyle,
+  currencyLocale = "en-GB",
   PressableComponent = TouchableOpacity,
 }) => {
   const [inputValue, setInputValue] = useState<string>(""); // State for input value
@@ -153,8 +159,8 @@ const Numpad: React.FC<NumpadProps> = ({
   };
 
   const renderInputArea = () => (
-    <View style={styles.inputContainer}>
-      <Text style={styles.inputText}>
+    <View style={[styles.inputContainer, inputContainerStyle]}>
+      <Text style={[styles.inputText, inputTextStyle]}>
         {formatInputValue(inputValue, currencyLocale)} USD
       </Text>
     </View>
@@ -162,7 +168,7 @@ const Numpad: React.FC<NumpadProps> = ({
 
   const renderConfirmButton = () => (
     <PressableComponent
-      style={styles.slideButton}
+      style={styles.confirmButton}
       onPress={() => {
         // **Replace ',' with '.' before parsing**
         const numericValue = parseFloat(inputValue.replace(",", "."));
@@ -173,7 +179,7 @@ const Numpad: React.FC<NumpadProps> = ({
         }
       }}
     >
-      <Text style={styles.slideButtonText}>{buttonText}</Text>
+      <Text style={styles.confirmButtonText}>{buttonText}</Text>
       <Image
         source={require("./local-assets/arrow-right.png")}
         style={styles.arrowRight}
@@ -182,7 +188,7 @@ const Numpad: React.FC<NumpadProps> = ({
   );
 
   const renderNumPad = () => (
-    <View style={styles.numpadContainer}>
+    <View style={[styles.numpadContainer, numpadStyle]}>
       {renderConfirmButton()}
       {buttons.map((row, rowIndex) => (
         <View key={rowIndex} style={styles.row}>
@@ -225,7 +231,7 @@ const styles = StyleSheet.create({
   },
   inputText: {
     fontSize: 42,
-    color: "#F2994A", // Orange color similar to the one in the screenshot
+    color: "#F2994A",
     fontWeight: "600",
   },
   numpadContainer: {
@@ -251,7 +257,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#828282",
   },
-  slideButton: {
+  confirmButton: {
     height: 60,
     borderRadius: 16,
     backgroundColor: "#0c58af",
@@ -261,7 +267,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 20,
   },
-  slideButtonText: {
+  confirmButtonText: {
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "bold",
