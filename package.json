@@ -1,6 +1,6 @@
 {
   "name": "react-native-numeric-keypad",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "🔢 A simple and fully customizable React Native Number Pad for your React Native projects.",
   "main": "./build/dist/index.js",
   "repository": "git@github.com:WrathChaos/react-native-numeric-keypad.git",
