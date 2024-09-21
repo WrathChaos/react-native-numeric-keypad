@@ -6,34 +6,124 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  StyleProp,
+  TextStyle,
+  ViewStyle,
 } from "react-native";
 
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("screen");
 
-interface NumpadButtonProps {
+// Shared interface for style props
+export interface NumpadStyleProps {
+  buttonStyle?: StyleProp<ViewStyle>;
+  buttonTextStyle?: StyleProp<TextStyle>;
+  customBackspaceIcon?: React.ReactNode;
+  PressableComponent?: React.ComponentType<any>;
+}
+
+interface NumpadButtonProps extends NumpadStyleProps {
   value: string;
   onPress: (value: string) => void;
 }
 
-const NumpadButton: React.FC<NumpadButtonProps> = ({ value, onPress }) => {
+export interface NumpadProps extends NumpadStyleProps {
+  buttonText: string;
+  onConfirmPress: (value: number) => void;
+  currencyLocale?: string;
+}
+
+// **Updated numberFormat function**
+export const numberFormat = (
+  value: any,
+  locale: string = "de-DE", // Changed from 'en-GB' to 'de-DE'
+  options: any = {},
+) => {
+  const number = Number(value);
+  if (isNaN(number)) {
+    return "0";
+  }
+  return new Intl.NumberFormat(locale, options).format(number);
+};
+
+// **Updated formatInputValue function**
+const formatInputValue = (input: string, locale: string) => {
+  if (input === "") {
+    return "0";
+  }
+
+  // **Replace multiple commas with a single comma**
+  const sanitizedInput = input.replace(/,+/g, ",");
+
+  // **Split the input into integer and decimal parts using ','**
+  const parts = sanitizedInput.split(",");
+  const { [0]: integerPart, [1]: decimalPart = "" } = parts;
+
+  // **Format the integer part**
+  const formattedInteger = numberFormat(integerPart, locale);
+
+  // **Append the decimal part with ',' if it exists**
+  if (parts.length > 1) {
+    return decimalPart.length > 0
+      ? `${formattedInteger},${decimalPart}`
+      : `${formattedInteger},`;
+  }
+
+  return formattedInteger;
+};
+
+const NumpadButton: React.FC<NumpadButtonProps> = ({
+  value,
+  buttonStyle,
+  buttonTextStyle,
+  customBackspaceIcon,
+  PressableComponent = TouchableOpacity,
+  onPress,
+}) => {
   if (value === "X") {
     return (
-      <TouchableOpacity style={styles.button} onPress={() => onPress("X")}>
-        <Image
-          source={require("./local-assets/backspace-icon.png")}
-          style={styles.backspaceIcon}
-        />
-      </TouchableOpacity>
+      <PressableComponent
+        style={[styles.button, buttonStyle]}
+        onPress={() => onPress("X")}
+      >
+        {customBackspaceIcon || (
+          <Image
+            source={require("./local-assets/backspace-icon.png")}
+            style={styles.backspaceIcon}
+          />
+        )}
+      </PressableComponent>
+    );
+  }
+
+  if (value === ".") {
+    return (
+      <PressableComponent
+        style={[styles.button, buttonStyle]}
+        onPress={() => onPress(".")}
+      >
+        <Text style={[styles.buttonText, buttonTextStyle]}>{","}</Text>
+      </PressableComponent>
     );
   }
   return (
-    <TouchableOpacity style={styles.button} onPress={() => onPress(value)}>
-      <Text style={styles.buttonText}>{value}</Text>
-    </TouchableOpacity>
+    <PressableComponent
+      style={[styles.button, buttonStyle]}
+      onPress={() => onPress(value)}
+    >
+      <Text style={[styles.buttonText, buttonTextStyle]}>{value}</Text>
+    </PressableComponent>
   );
 };
 
-const Numpad: React.FC = () => {
+const Numpad: React.FC<NumpadProps> = ({
+  buttonText,
+  buttonStyle,
+  buttonTextStyle,
+  customBackspaceIcon,
+  onConfirmPress,
+  currencyLocale = "de-DE", // Changed default to 'de-DE'
+  PressableComponent = TouchableOpacity,
+}) => {
   const [inputValue, setInputValue] = useState<string>(""); // State for input value
 
   const buttons: string[][] = [
@@ -46,47 +136,75 @@ const Numpad: React.FC = () => {
   const handleButtonPress = (value: string) => {
     if (value === "X") {
       setInputValue((prev) => prev.slice(0, -1)); // Handle backspace
+    } else if (value === ".") {
+      // **Append ',' instead of '.'**
+      if (!inputValue.includes(",")) {
+        setInputValue((prev) => (prev === "" ? "0," : prev + ","));
+      }
     } else {
-      setInputValue((prev) => prev + value); // Append the button value to input
+      setInputValue((prev) => {
+        // Prevent leading zeros
+        if (prev === "0") {
+          return value;
+        }
+        return prev + value;
+      });
     }
   };
 
-  const handleSlideToSend = () => {
-    console.log("Slide to Send pressed with value:", inputValue);
-    // Add your logic for sending the value here
-  };
+  const renderInputArea = () => (
+    <View style={styles.inputContainer}>
+      <Text style={styles.inputText}>
+        {formatInputValue(inputValue, currencyLocale)} USD
+      </Text>
+    </View>
+  );
+
+  const renderConfirmButton = () => (
+    <PressableComponent
+      style={styles.slideButton}
+      onPress={() => {
+        // **Replace ',' with '.' before parsing**
+        const numericValue = parseFloat(inputValue.replace(",", "."));
+        if (!isNaN(numericValue)) {
+          onConfirmPress(numericValue);
+        } else {
+          onConfirmPress(0);
+        }
+      }}
+    >
+      <Text style={styles.slideButtonText}>{buttonText}</Text>
+      <Image
+        source={require("./local-assets/arrow-right.png")}
+        style={styles.arrowRight}
+      />
+    </PressableComponent>
+  );
+
+  const renderNumPad = () => (
+    <View style={styles.numpadContainer}>
+      {renderConfirmButton()}
+      {buttons.map((row, rowIndex) => (
+        <View key={rowIndex} style={styles.row}>
+          {row.map((buttonValue) => (
+            <NumpadButton
+              key={buttonValue}
+              value={buttonValue}
+              onPress={handleButtonPress}
+              buttonStyle={buttonStyle}
+              buttonTextStyle={buttonTextStyle}
+              customBackspaceIcon={customBackspaceIcon}
+            />
+          ))}
+        </View>
+      ))}
+    </View>
+  );
 
   return (
     <View style={styles.container}>
-      {/* Input Area */}
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputText}>{inputValue || "0"} USD</Text>
-      </View>
-
-      {/* Number Pad */}
-      <View style={styles.numpadContainer}>
-        <TouchableOpacity
-          style={styles.slideButton}
-          onPress={handleSlideToSend}
-        >
-          <Text style={styles.slideButtonText}>Confirm</Text>
-          <Image
-            source={require("./local-assets/arrow-right.png")}
-            style={styles.arrowRight}
-          />
-        </TouchableOpacity>
-        {buttons.map((row, rowIndex) => (
-          <View key={rowIndex} style={styles.row}>
-            {row.map((buttonValue) => (
-              <NumpadButton
-                key={buttonValue}
-                value={buttonValue}
-                onPress={handleButtonPress}
-              />
-            ))}
-          </View>
-        ))}
-      </View>
+      {renderInputArea()}
+      {renderNumPad()}
     </View>
   );
 };
