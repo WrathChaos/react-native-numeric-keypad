@@ -38,6 +38,11 @@ local.properties
 #
 .vscode/
 
+vendor/
+
+/example/ios/Pods
+*/Pods
+
 # node.js
 #
 node_modules/
