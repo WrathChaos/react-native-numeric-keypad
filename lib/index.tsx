@@ -33,6 +33,7 @@ export interface NumpadProps extends NumpadStyleProps {
   numpadStyle?: StyleProp<ViewStyle>;
   inputContainerStyle?: StyleProp<ViewStyle>;
   inputTextStyle?: StyleProp<TextStyle>;
+  confirmButtonStyle?: StyleProp<ViewStyle>;
 }
 
 // **Updated numberFormat function**
@@ -123,6 +124,7 @@ const Numpad: React.FC<NumpadProps> = ({
   buttonStyle,
   buttonTextStyle,
   customBackspaceIcon,
+  confirmButtonStyle,
   onConfirmPress,
   numpadStyle,
   inputContainerStyle,
@@ -168,7 +170,7 @@ const Numpad: React.FC<NumpadProps> = ({
 
   const renderConfirmButton = () => (
     <PressableComponent
-      style={styles.confirmButton}
+      style={[styles.confirmButton, confirmButtonStyle]}
       onPress={() => {
         // **Replace ',' with '.' before parsing**
         const numericValue = parseFloat(inputValue.replace(",", "."));
