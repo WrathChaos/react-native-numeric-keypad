@@ -20,6 +20,7 @@ export interface NumpadStyleProps {
   buttonTextStyle?: StyleProp<TextStyle>;
   customBackspaceIcon?: React.ReactNode;
   PressableComponent?: React.ComponentType<any>;
+  backspaceIconStyle?: StyleProp<ImageStyle>;
 }
 
 interface NumpadButtonProps extends NumpadStyleProps {
@@ -83,6 +84,7 @@ const NumpadButton: React.FC<NumpadButtonProps> = ({
   buttonStyle,
   buttonTextStyle,
   customBackspaceIcon,
+  backspaceIconStyle,
   PressableComponent = TouchableOpacity,
   onPress,
 }) => {
@@ -95,7 +97,7 @@ const NumpadButton: React.FC<NumpadButtonProps> = ({
         {customBackspaceIcon || (
           <Image
             source={require("./local-assets/backspace-icon.png")}
-            style={styles.backspaceIcon}
+            style={[styles.backspaceIcon, backspaceIconStyle]}
           />
         )}
       </PressableComponent>
@@ -134,6 +136,7 @@ const Numpad: React.FC<NumpadProps> = ({
   inputTextStyle,
   confirmButtonTextStyle,
   confirmButtonIconStyle,
+  backspaceIconStyle,
   currencyLocale = "en-GB",
   PressableComponent = TouchableOpacity,
 }) => {
@@ -209,6 +212,7 @@ const Numpad: React.FC<NumpadProps> = ({
               buttonStyle={buttonStyle}
               buttonTextStyle={buttonTextStyle}
               customBackspaceIcon={customBackspaceIcon}
+              backspaceIconStyle={backspaceIconStyle}
             />
           ))}
         </View>
