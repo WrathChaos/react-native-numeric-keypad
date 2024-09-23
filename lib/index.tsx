@@ -9,6 +9,7 @@ import {
   StyleProp,
   TextStyle,
   ViewStyle,
+  ImageStyle,
 } from "react-native";
 
 const { width: ScreenWidth, height: ScreenHeight } = Dimensions.get("screen");
@@ -34,6 +35,8 @@ export interface NumpadProps extends NumpadStyleProps {
   inputContainerStyle?: StyleProp<ViewStyle>;
   inputTextStyle?: StyleProp<TextStyle>;
   confirmButtonStyle?: StyleProp<ViewStyle>;
+  confirmButtonTextStyle?: StyleProp<TextStyle>;
+  confirmButtonIconStyle?: StyleProp<ImageStyle>;
 }
 
 // **Updated numberFormat function**
@@ -129,6 +132,8 @@ const Numpad: React.FC<NumpadProps> = ({
   numpadStyle,
   inputContainerStyle,
   inputTextStyle,
+  confirmButtonTextStyle,
+  confirmButtonIconStyle,
   currencyLocale = "en-GB",
   PressableComponent = TouchableOpacity,
 }) => {
@@ -181,10 +186,12 @@ const Numpad: React.FC<NumpadProps> = ({
         }
       }}
     >
-      <Text style={styles.confirmButtonText}>{buttonText}</Text>
+      <Text style={[styles.confirmButtonText, confirmButtonTextStyle]}>
+        {buttonText}
+      </Text>
       <Image
         source={require("./local-assets/arrow-right.png")}
-        style={styles.arrowRight}
+        style={[styles.arrowRight, confirmButtonIconStyle]}
       />
     </PressableComponent>
   );
