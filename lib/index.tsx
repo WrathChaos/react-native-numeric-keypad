@@ -32,6 +32,7 @@ export interface NumpadProps extends NumpadStyleProps {
   buttonText: string;
   onConfirmPress: (value: number) => void;
   currencyLocale?: string;
+  currencySymbol?: string;
   numpadStyle?: StyleProp<ViewStyle>;
   inputContainerStyle?: StyleProp<ViewStyle>;
   inputTextStyle?: StyleProp<TextStyle>;
@@ -43,7 +44,7 @@ export interface NumpadProps extends NumpadStyleProps {
 // **Updated numberFormat function**
 export const numberFormat = (
   value: any,
-  locale: string = "de-DE", // Changed from 'en-GB' to 'de-DE'
+  locale: string = "en-GB",
   options: any = {},
 ) => {
   const number = Number(value);
@@ -138,6 +139,7 @@ const Numpad: React.FC<NumpadProps> = ({
   confirmButtonIconStyle,
   backspaceIconStyle,
   currencyLocale = "en-GB",
+  currencySymbol = "$",
   PressableComponent = TouchableOpacity,
 }) => {
   const [inputValue, setInputValue] = useState<string>(""); // State for input value
@@ -171,7 +173,7 @@ const Numpad: React.FC<NumpadProps> = ({
   const renderInputArea = () => (
     <View style={[styles.inputContainer, inputContainerStyle]}>
       <Text style={[styles.inputText, inputTextStyle]}>
-        {formatInputValue(inputValue, currencyLocale)} USD
+        {formatInputValue(inputValue, currencyLocale)} {currencySymbol}
       </Text>
     </View>
   );
